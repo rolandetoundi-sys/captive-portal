@@ -17,7 +17,7 @@ app.use(express.json());
 const publicDir = path.join(__dirname, 'public');
 app.use(express.static(publicDir));
 // Même portail que /, pour l'URL externe UniFi (ex. /guest/default/?id=...&ap=...).
-app.use('/guest/default', express.static(publicDir));
+app.use('/guest/s/default', express.static(publicDir));
 
 const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 const isValidPhone = (phone) => /^\+?[0-9]{6,15}$/.test(db.normalizePhone(phone));
