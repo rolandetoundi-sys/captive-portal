@@ -2,8 +2,8 @@
 
 Portail captif Wi-Fi minimaliste (HTML/CSS/JS vanilla + Node.js + SQLite) qui :
 
-- demande **nom, email, téléphone** à un nouveau visiteur avant de l'autoriser sur internet ;
-- ne redemande que le **téléphone** à un visiteur déjà connu, et affiche un message de bienvenue ;
+- à la **première connexion**, demande le **téléphone**, puis **nom + email (obligatoire)**, envoie un **code de vérification par email (OTP)** et autorise l'accès une fois le code validé ;
+- pour un visiteur **déjà enregistré**, ne redemande que le **numéro de téléphone ou l'email** (onglet « Déjà enregistré ») et autorise l'accès directement ;
 - s'intègre au contrôleur **UniFi Network** auto-hébergé du client pour autoriser réellement l'accès (portail "External Portal").
 
 ## Pourquoi pas Vercel
@@ -57,13 +57,21 @@ UniFi redirigera alors chaque nouvel appareil vers `http://IP_DU_SERVEUR:3000/?a
 
 ## 4. Fonctionnement du flux
 
-1. Le visiteur arrive sur la page → on lui demande **uniquement le téléphone**.
-2. Le serveur vérifie en base :
-   - **numéro connu** → message "Bon retour parmi nous" + autorisation automatique ;
-   - **numéro inconnu** → on affiche les champs **nom + email** pour compléter l'inscription, puis on autorise.
-3. Dans les deux cas, le serveur appelle le contrôleur UniFi (`authorize-guest`) pour débloquer l'adresse MAC de l'appareil, puis redirige le visiteur vers la page qu'il essayait de visiter à l'origine.
+La page propose deux onglets :
 
-Note : les smartphones récents randomisent leur adresse MAC par réseau, donc on ne s'appuie jamais sur le MAC pour *reconnaître* un visiteur — seulement pour l'autoriser une fois identifié par téléphone.
+**Première connexion** (nouveau visiteur) :
+1. Le visiteur saisit son **téléphone**. S'il est déjà enregistré, on l'invite à utiliser l'onglet « Déjà enregistré ».
+2. Il saisit son **nom** et son **email** (les deux obligatoires).
+3. Le serveur génère un code à 6 chiffres, l'envoie par email (`SMTP_*`) et le garde en mémoire (10 min, 5 tentatives max).
+4. Le visiteur saisit le code reçu → le serveur le valide, crée la fiche en base, puis appelle le contrôleur UniFi (`authorize-guest`) pour débloquer l'adresse MAC de l'appareil.
+
+**Déjà enregistré** (visiteur connu) :
+1. Le visiteur saisit son **numéro de téléphone ou son email**.
+2. Le serveur retrouve sa fiche et autorise directement l'accès.
+
+Dans les deux cas, le visiteur est ensuite redirigé vers la page qu'il essayait de visiter à l'origine.
+
+Note : les smartphones récents randomisent leur adresse MAC par réseau, donc on ne s'appuie jamais sur le MAC pour *reconnaître* un visiteur — seulement pour l'autoriser une fois identifié.
 
 ## 5. Données stockées
 
@@ -85,9 +93,10 @@ Table SQLite unique `guests` (fichier `data/guests.db`, persisté via le volume 
 
 ```
 .
-├── server.js        # routes API (lookup, register, checkin)
+├── server.js        # routes API (lookup, register/start-verify-resend, checkin)
 ├── unifi.js          # intégration contrôleur UniFi (login + authorize-guest)
-├── db.js              # accès SQLite (better-sqlite3)
+├── mailer.js          # envoi de l'email contenant le code OTP
+├── db.js              # accès base de données (LibSQL/Turso)
 ├── public/            # front vanilla HTML/CSS/JS
 ├── Dockerfile
 ├── docker-compose.yml

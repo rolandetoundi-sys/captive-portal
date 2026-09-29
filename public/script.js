@@ -18,11 +18,15 @@
   // --- Références DOM ---
   const steps = {
     phone: document.getElementById('step-phone'),
-    welcomeBack: document.getElementById('step-welcome-back'),
     register: document.getElementById('step-register'),
+    otp: document.getElementById('step-otp'),
+    identifier: document.getElementById('step-identifier'),
     success: document.getElementById('step-success'),
     error: document.getElementById('step-error'),
   };
+
+  const tabNew = document.getElementById('tab-new');
+  const tabReturning = document.getElementById('tab-returning');
 
   const phonePill = document.getElementById('phone-pill');
   const phonePillValue = document.getElementById('phone-pill-value');
@@ -39,17 +43,28 @@
   const errorEmail = document.getElementById('error-email');
   const btnRegisterSubmit = document.getElementById('btn-register-submit');
 
+  const formOtp = document.getElementById('form-otp');
+  const inputOtp = document.getElementById('input-otp');
+  const errorOtp = document.getElementById('error-otp');
+  const otpSubcopy = document.getElementById('otp-subcopy');
+  const btnOtpSubmit = document.getElementById('btn-otp-submit');
+  const btnOtpResend = document.getElementById('btn-otp-resend');
+
+  const formIdentifier = document.getElementById('form-identifier');
+  const inputIdentifier = document.getElementById('input-identifier');
+  const errorIdentifier = document.getElementById('error-identifier');
+  const btnIdentifierSubmit = document.getElementById('btn-identifier-submit');
+
   const successHeading = document.getElementById('success-heading');
   const successSubcopy = document.getElementById('success-subcopy');
   const btnContinue = document.getElementById('btn-continue');
-
-  const welcomeBackHeading = document.getElementById('welcome-back-heading');
-  const welcomeBackSubcopy = document.getElementById('welcome-back-subcopy');
 
   const errorMessage = document.getElementById('error-message');
   const btnRetry = document.getElementById('btn-retry');
 
   let currentPhone = '';
+  let currentName = '';
+  let currentMode = 'new';
 
   function showStep(name) {
     Object.values(steps).forEach((el) => { el.hidden = true; });
@@ -107,8 +122,6 @@
       const target = decodeURIComponent(context.redirectUrl);
       btnContinue.onclick = () => { window.location.href = target; };
       window.setTimeout(() => { window.location.href = target; }, 1800);
-    } else if (authorized) {
-      btnContinue.hidden = true;
     } else {
       btnContinue.hidden = true;
     }
@@ -119,14 +132,38 @@
     showStep('error');
   }
 
-  // --- Étape 1 : soumission du numéro de téléphone ---
+  // --- Bascule entre les deux parcours ---
+  function setMode(mode) {
+    currentMode = mode;
+    tabNew.classList.toggle('active', mode === 'new');
+    tabNew.setAttribute('aria-selected', String(mode === 'new'));
+    tabReturning.classList.toggle('active', mode === 'returning');
+    tabReturning.setAttribute('aria-selected', String(mode === 'returning'));
+
+    hidePhonePill();
+    setFieldError(errorPhone, null);
+    setFieldError(errorIdentifier, null);
+
+    if (mode === 'new') {
+      showStep('phone');
+      inputPhone.focus();
+    } else {
+      showStep('identifier');
+      inputIdentifier.focus();
+    }
+  }
+
+  tabNew.addEventListener('click', () => setMode('new'));
+  tabReturning.addEventListener('click', () => setMode('returning'));
+
+  // --- Parcours "Première connexion", étape 1 : téléphone ---
   formPhone.addEventListener('submit', async (e) => {
     e.preventDefault();
     setFieldError(errorPhone, null);
 
     const phone = inputPhone.value.trim();
     if (!phone) {
-      setFieldError(errorPhone, 'Merci d\'entrer votre numéro.');
+      setFieldError(errorPhone, "Merci d'entrer votre numéro.");
       return;
     }
 
@@ -141,49 +178,24 @@
         return;
       }
 
+      if (data.found) {
+        setFieldError(errorPhone, 'Ce numéro est déjà enregistré. Utilisateur « Déjà enregistré ».');
+        return;
+      }
+
       currentPhone = phone;
       showPhonePill(phone);
-
-      if (data.found) {
-        showStep('welcomeBack');
-        await checkin(phone, data.firstName);
-      } else {
-        showStep('register');
-        inputName.focus();
-      }
+      showStep('register');
+      inputName.focus();
     } catch (err) {
-      showError("Impossible de contacter le portail. Vérifiez votre connexion et réessayez.");
+      showError('Impossible de contacter le portail. Vérifiez votre connexion et réessayez.');
     } finally {
       btnPhoneSubmit.disabled = false;
       btnPhoneSubmit.textContent = 'Continuer';
     }
   });
 
-  // --- Étape 2a : visiteur reconnu -> autorisation automatique ---
-  async function checkin(phone, firstNameHint) {
-    welcomeBackHeading.textContent = firstNameHint ? `Bon retour, ${firstNameHint}.` : 'Bon retour parmi nous.';
-    welcomeBackSubcopy.textContent = 'Connexion en cours...';
-
-    try {
-      const { ok, data } = await postJSON('/api/checkin', {
-        phone,
-        clientMac: context.clientMac,
-        apMac: context.apMac,
-      });
-
-      if (!ok) {
-        // Fiche introuvable côté serveur (cas limite) : on repasse par l'inscription complète.
-        showStep('register');
-        return;
-      }
-
-      showSuccess({ firstName: data.firstName, authorized: data.authorized, isReturning: true });
-    } catch (err) {
-      showError("Impossible de contacter le portail. Vérifiez votre connexion et réessayez.");
-    }
-  }
-
-  // --- Étape 2b : nouveau visiteur -> inscription complète ---
+  // --- Parcours "Première connexion", étape 2 : nom + email -> envoi du code ---
   formRegister.addEventListener('submit', async (e) => {
     e.preventDefault();
     setFieldError(errorName, null);
@@ -194,20 +206,20 @@
     let hasError = false;
 
     if (!name) {
-      setFieldError(errorName, 'Merci d\'entrer votre nom.');
+      setFieldError(errorName, "Merci d'entrer votre nom.");
       hasError = true;
     }
-    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      setFieldError(errorEmail, 'Adresse email invalide.');
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setFieldError(errorEmail, 'Une adresse email valide est requise.');
       hasError = true;
     }
     if (hasError) return;
 
     btnRegisterSubmit.disabled = true;
-    btnRegisterSubmit.textContent = 'Connexion...';
+    btnRegisterSubmit.textContent = 'Envoi du code...';
 
     try {
-      const { ok, data } = await postJSON('/api/register', {
+      const { ok, data } = await postJSON('/api/register/start', {
         name,
         email,
         phone: currentPhone,
@@ -216,16 +228,111 @@
       });
 
       if (!ok) {
-        showError(data.error || "Impossible de finaliser l'inscription.");
+        showError(data.error || "Impossible d'envoyer le code de vérification.");
         return;
       }
 
-      showSuccess({ firstName: data.firstName, authorized: data.authorized, isReturning: false });
+      currentName = name;
+      otpSubcopy.textContent = `Entrez le code à 6 chiffres envoyé à ${email}.`;
+      inputOtp.value = '';
+      setFieldError(errorOtp, null);
+      showStep('otp');
+      inputOtp.focus();
     } catch (err) {
-      showError("Impossible de contacter le portail. Vérifiez votre connexion et réessayez.");
+      showError('Impossible de contacter le portail. Vérifiez votre connexion et réessayez.');
     } finally {
       btnRegisterSubmit.disabled = false;
-      btnRegisterSubmit.textContent = 'Se connecter à internet';
+      btnRegisterSubmit.textContent = 'Recevoir mon code';
+    }
+  });
+
+  // --- Parcours "Première connexion", étape 3 : validation du code ---
+  formOtp.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    setFieldError(errorOtp, null);
+
+    const code = inputOtp.value.trim();
+    if (!code) {
+      setFieldError(errorOtp, 'Merci d\'entrer le code reçu par email.');
+      return;
+    }
+
+    btnOtpSubmit.disabled = true;
+    btnOtpSubmit.textContent = 'Vérification...';
+
+    try {
+      const { ok, data } = await postJSON('/api/register/verify', {
+        phone: currentPhone,
+        code,
+      });
+
+      if (!ok) {
+        setFieldError(errorOtp, data.error || 'Code incorrect.');
+        return;
+      }
+
+      showSuccess({ firstName: data.firstName || currentName.split(' ')[0], authorized: data.authorized, isReturning: false });
+    } catch (err) {
+      showError('Impossible de contacter le portail. Vérifiez votre connexion et réessayez.');
+    } finally {
+      btnOtpSubmit.disabled = false;
+      btnOtpSubmit.textContent = 'Valider et se connecter';
+    }
+  });
+
+  // --- Renvoyer un nouveau code ---
+  btnOtpResend.addEventListener('click', async () => {
+    setFieldError(errorOtp, null);
+    btnOtpResend.disabled = true;
+    btnOtpResend.textContent = 'Envoi...';
+
+    try {
+      const { ok, data } = await postJSON('/api/register/resend', { phone: currentPhone });
+      if (!ok) {
+        setFieldError(errorOtp, data.error || "Impossible de renvoyer le code.");
+        return;
+      }
+      setFieldError(errorOtp, null);
+    } catch (err) {
+      setFieldError(errorOtp, 'Impossible de contacter le portail.');
+    } finally {
+      btnOtpResend.disabled = false;
+      btnOtpResend.textContent = 'Renvoyer le code';
+    }
+  });
+
+  // --- Parcours "Déjà enregistré" : nom ou email -> connexion directe ---
+  formIdentifier.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    setFieldError(errorIdentifier, null);
+
+    const identifier = inputIdentifier.value.trim();
+    if (!identifier) {
+      setFieldError(errorIdentifier, 'Merci d\'entrer votre numéro de téléphone ou votre email.');
+      return;
+    }
+
+    btnIdentifierSubmit.disabled = true;
+    btnIdentifierSubmit.textContent = 'Connexion...';
+
+    try {
+      const { ok, data } = await postJSON('/api/checkin', {
+        identifier,
+        clientMac: context.clientMac,
+        apMac: context.apMac,
+      });
+
+      if (!ok) {
+        setFieldError(errorIdentifier, data.error || 'Aucun compte trouvé.');
+        return;
+      }
+
+      showSuccess({ firstName: data.firstName, authorized: data.authorized, isReturning: true });
+    } catch (err) {
+      showError('Impossible de contacter le portail. Vérifiez votre connexion et réessayez.');
+    } finally {
+      btnIdentifierSubmit.disabled = false;
+      btnIdentifierSubmit.textContent = 'Se connecter à internet';
     }
   });
 
@@ -239,11 +346,9 @@
 
   // --- Réessayer après une erreur générique ---
   btnRetry.addEventListener('click', () => {
-    if (currentPhone) {
-      showStep('welcomeBack');
-      checkin(currentPhone);
-    } else {
-      showStep('phone');
-    }
+    setMode(currentMode);
   });
+
+  setMode('new');
 })();
+
