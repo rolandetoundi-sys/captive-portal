@@ -186,11 +186,13 @@ input:focus-visible {
 .field-error {
   margin: -8px 0 12px;
   font-size: 13px;
-  color: var(--fg);
+  color: #c62828;
   font-weight: 500;
 }
 
 .field-error::before { content: "— "; }
+
+#error-message { color: #c62828; }
 
 .otp-input {
   letter-spacing: 6px;
