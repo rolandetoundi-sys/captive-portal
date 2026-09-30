@@ -24,12 +24,6 @@
 
     <p class="eyebrow" id="eyebrow">Wi-Fi invité</p>
 
-    <!-- Choix du parcours : première connexion (OTP par email) ou visiteur déjà enregistré -->
-    <div class="tabs" id="mode-tabs" role="tablist">
-      <button type="button" class="tab-btn active" id="tab-new" data-mode="new" role="tab" aria-selected="true">Première connexion</button>
-      <button type="button" class="tab-btn" id="tab-returning" data-mode="returning" role="tab" aria-selected="false">Déjà enregistré</button>
-    </div>
-
     <!-- Puce affichée une fois le téléphone saisi, sert de fil visuel entre les étapes -->
     <button type="button" id="phone-pill" class="phone-pill" hidden>
       <span id="phone-pill-value"></span>
@@ -38,10 +32,10 @@
 
     <div aria-live="polite">
 
-      <!-- Étape 1 (nouveau visiteur) : le téléphone -->
+      <!-- Étape 1 : toujours le téléphone en premier -->
       <section id="step-phone" class="step">
-        <h1 class="heading">Première connexion</h1>
-        <p class="subcopy">Entrez votre numéro de téléphone pour commencer.</p>
+        <h1 class="heading">Connexion au réseau</h1>
+        <p class="subcopy">Entrez votre numéro de téléphone pour continuer.</p>
 
         <form id="form-phone" novalidate>
           <label class="field-label" for="input-phone">Numéro de téléphone</label>
@@ -59,58 +53,28 @@
         </form>
       </section>
 
-      <!-- Étape 2 (nouveau visiteur) : nom + email, tous deux requis -->
+      <!-- Étape 2a : visiteur reconnu -->
+      <section id="step-welcome-back" class="step" hidden>
+        <h1 class="heading" id="welcome-back-heading">Bon retour parmi nous.</h1>
+        <p class="subcopy" id="welcome-back-subcopy">Connexion en cours...</p>
+        <div class="spinner" aria-hidden="true"></div>
+      </section>
+
+      <!-- Étape 2b : nouveau visiteur, formulaire complet -->
       <section id="step-register" class="step" hidden>
         <h1 class="heading">Bienvenue</h1>
-        <p class="subcopy">Ces informations servent à vous envoyer votre code de vérification.</p>
+        <p class="subcopy">Encore une étape avant de vous connecter.</p>
 
         <form id="form-register" novalidate>
           <label class="field-label" for="input-name">Nom complet</label>
           <input id="input-name" name="name" type="text" autocomplete="name" placeholder="Jean Mballa" required />
           <p class="field-error" id="error-name" hidden></p>
 
-          <label class="field-label" for="input-email">Adresse email</label>
-          <input id="input-email" name="email" type="email" autocomplete="email" placeholder="jean@exemple.com" required />
+          <label class="field-label" for="input-email">Adresse email <span class="field-optional">(optionnel)</span></label>
+          <input id="input-email" name="email" type="email" autocomplete="email" placeholder="jean@exemple.com" />
           <p class="field-error" id="error-email" hidden></p>
 
-          <button type="submit" class="btn-primary" id="btn-register-submit">Recevoir mon code</button>
-        </form>
-      </section>
-
-      <!-- Étape 3 (nouveau visiteur) : validation du code reçu par email -->
-      <section id="step-otp" class="step" hidden>
-        <h1 class="heading">Vérifiez votre email</h1>
-        <p class="subcopy" id="otp-subcopy">Entrez le code à 6 chiffres que nous venons de vous envoyer.</p>
-
-        <form id="form-otp" novalidate>
-          <label class="field-label" for="input-otp">Code de vérification</label>
-          <input
-            id="input-otp"
-            name="otp"
-            type="text"
-            inputmode="numeric"
-            autocomplete="one-time-code"
-            maxlength="6"
-            placeholder="123456"
-            class="otp-input"
-            required
-          />
-          <p class="field-error" id="error-otp" hidden></p>
-          <button type="submit" class="btn-primary" id="btn-otp-submit">Valider et se connecter</button>
-          <button type="button" class="btn-link" id="btn-otp-resend">Renvoyer le code</button>
-        </form>
-      </section>
-
-      <!-- Parcours visiteur déjà enregistré : numéro de téléphone ou email -->
-      <section id="step-identifier" class="step" hidden>
-        <h1 class="heading">Bon retour</h1>
-        <p class="subcopy">Entrez votre numéro de téléphone ou votre adresse email pour vous reconnecter.</p>
-
-        <form id="form-identifier" novalidate>
-          <label class="field-label" for="input-identifier">Numéro de téléphone ou adresse email</label>
-          <input id="input-identifier" name="identifier" type="text" autocomplete="tel email" placeholder="+237 6XX XX XX XX ou jean@exemple.com" required />
-          <p class="field-error" id="error-identifier" hidden></p>
-          <button type="submit" class="btn-primary" id="btn-identifier-submit">Se connecter à internet</button>
+          <button type="submit" class="btn-primary" id="btn-register-submit">Se connecter à internet</button>
         </form>
       </section>
 
@@ -146,4 +110,3 @@
   <script src="script.js"></script>
 </body>
 </html>
-

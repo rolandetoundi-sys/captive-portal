@@ -50,27 +50,6 @@ async function findByPhone(phone) {
   return result.rows[0] || null;
 }
 
-async function findByEmail(email) {
-  const result = await client.execute({
-    sql: 'SELECT * FROM guests WHERE lower(email) = lower(?)',
-    args: [(email || '').trim()],
-  });
-  return result.rows[0] || null;
-}
-
-// Retrouve un visiteur déjà enregistré à partir de son numéro de téléphone
-// OU de son email (utilisé par le flux "déjà enregistré").
-async function findByIdentifier(identifier) {
-  const value = (identifier || '').trim();
-  if (!value) return { guest: null, ambiguous: false };
-
-  if (value.includes('@')) {
-    return { guest: await findByEmail(value), ambiguous: false };
-  }
-
-  return { guest: await findByPhone(value), ambiguous: false };
-}
-
 // Crée un nouveau visiteur. Retourne la fiche créée.
 async function createGuest({ name, email, phone, mac }) {
   const cleanPhone = normalizePhone(phone);
@@ -96,4 +75,4 @@ async function touchGuest(phone, mac) {
   return findByPhone(cleanPhone);
 }
 
-module.exports = { normalizePhone, findByPhone, findByEmail, findByIdentifier, createGuest, touchGuest, init };
+module.exports = { normalizePhone, findByPhone, createGuest, touchGuest, init };
