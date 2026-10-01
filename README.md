@@ -26,6 +26,16 @@ curl http://localhost:3000/api/health
 # -> {"ok":true}
 ```
 
+## Administration
+
+1. Définissez `ADMIN_USERNAME` et `ADMIN_PASSWORD` dans `.env` avec un mot de passe long et unique.
+2. Redémarrez l'application, puis ouvrez `https://adresse-du-portail/admin/`.
+3. L'authentification HTTP Basic protège l'interface et toutes ses API. Publiez-la uniquement derrière HTTPS (par exemple avec un reverse proxy TLS) : Basic Auth ne chiffre pas les identifiants sans HTTPS.
+
+L'espace affiche les utilisateurs et leur dernière adresse MAC, permet la recherche par nom, téléphone ou email, et présente les visites quotidiennes sur 7, 30 ou 90 jours. L'export Excel permet de choisir une date de début et de fin avant le téléchargement. Le classeur `.xlsx` contient le nom, le téléphone, l'email, l'adresse MAC, le nombre de visites sur la période et la dernière visite de cette période.
+
+Le total des visites reprend les compteurs existants. Le détail journalier commence au déploiement de cette version ; les visiteurs déjà enregistrés reçoivent une entrée de journal à leur première date connue, sans inventer l'historique intermédiaire.
+
 ## 2. Configurer l'accès au contrôleur UniFi
 
 Le contrôleur étant auto-hébergé (pas un boîtier UDM/Cloud Gateway), il **ne supporte pas** les clés API modernes — seule l'authentification classique (compte local + mot de passe) fonctionne.
@@ -67,7 +77,7 @@ Note : les smartphones récents randomisent leur adresse MAC par réseau, donc o
 
 ## 5. Données stockées
 
-Table SQLite unique `guests` (fichier `data/guests.db`, persisté via le volume Docker) :
+Base SQLite (`data/guests.db`, persistée via le volume Docker) :
 
 | Colonne | Description |
 |---|---|
@@ -75,6 +85,8 @@ Table SQLite unique `guests` (fichier `data/guests.db`, persisté via le volume 
 | `visit_count` | nombre de connexions |
 | `first_seen_at` / `last_seen_at` | horodatage première/dernière visite |
 | `last_mac` | dernière adresse MAC vue (indicatif seulement) |
+
+La table `visits` conserve le journal des connexions à partir du déploiement de cette version.
 
 ## 6. Si le client migre un jour vers un boîtier UniFi OS
 

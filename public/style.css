@@ -5,8 +5,24 @@
   --muted: #6f6f6f;
   --border: #e6e6e6;
   --border-strong: #0a0a0a;
+  --field-bg: #ffffff;
+  --secondary-hover: #000000;
+  --secondary-hover-fg: #ffffff;
   --radius: 2px;
   --font: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+}
+
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #000000;
+  --card-bg: #171717;
+  --fg: #ffffff;
+  --muted: #b3b3b3;
+  --border: #555555;
+  --border-strong: #0099cc;
+  --field-bg: #000000;
+  --secondary-hover: #0099cc;
+  --secondary-hover-fg: #ffffff;
 }
 
 * {
@@ -98,6 +114,7 @@ body {
   padding: 44px 36px 32px;
   position: relative;
 }
+.portal-theme-toggle { position: absolute; top: 12px; right: 12px; z-index: 1; }
 
 /* ---- Typographie ---- */
 
@@ -159,7 +176,7 @@ input[type="email"] {
   padding: 12px 14px;
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  background: #fff;
+  background: var(--field-bg);
   color: var(--fg);
   margin-bottom: 14px;
   transition: border-color 120ms ease;
@@ -209,7 +226,7 @@ input:focus-visible {
 
 .btn-primary {
   background: var(--fg);
-  color: #fff;
+  color: var(--card-bg);
   border: 1px solid var(--fg);
 }
 
@@ -225,8 +242,8 @@ input:focus-visible {
 }
 
 .btn-secondary:hover {
-  background: var(--fg);
-  color: #fff;
+  background: var(--secondary-hover);
+  color: var(--secondary-hover-fg);
 }
 
 .btn-secondary:focus-visible,
@@ -246,7 +263,7 @@ input:focus-visible {
   font-size: 13px;
   font-weight: 500;
   color: var(--fg);
-  background: #fff;
+  background: var(--field-bg);
   border: 1px solid var(--border);
   border-radius: 999px;
   padding: 6px 8px 6px 14px;

@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Administration | Portail Wi-Fi</title>
+  <link rel="stylesheet" href="/admin/style.css" />
+  <link rel="stylesheet" href="/theme.css" />
+  <script src="/theme.js"></script>
+  <link rel="icon" type="image/png" href="images/cncc-logo.png" />
+  <link rel="apple-touch-icon" href="images/cncc-logo.png" />
+</head>
+<body>
+  <header class="topbar">
+    <a class="identity" href="/admin/" aria-label="Administration du portail">
+      <img src="/images/cncc-logo.png" alt="" />
+      <span>Portail Wi-Fi <b>Administration</b></span>
+    </a>
+    <nav class="topbar-actions" aria-label="Actions d’administration">
+      <button class="theme-toggle" type="button" aria-label="Activer le thème sombre" title="Activer le thème sombre">
+        <svg class="theme-icon-sun" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42"/></svg>
+        <svg class="theme-icon-moon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.9 13A9 9 0 0 1 11 3.1 9 9 0 1 0 20.9 13Z"/></svg>
+      </button>
+      <a class="portal-link" href="/" target="_blank" rel="noreferrer">Ouvrir le portail <span aria-hidden="true">↗</span></a>
+      <button class="logout-button" id="logout-button" type="button">Déconnexion</button>
+    </nav>
+  </header>
+
+  <main class="dashboard">
+    <section class="page-heading">
+      <div>
+        <p class="eyebrow">ESPACE SÉCURISÉ</p>
+        <h1>Fréquentation</h1>
+        <p class="subtitle">Utilisateurs enregistrés et activité du réseau invité.</p>
+      </div>
+      <button class="export-button" id="export-open" type="button" aria-label="Exporter pour Excel" aria-haspopup="dialog">
+        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0 4-4m-4 4-4-4"/><path d="M5 17v3h14v-3"/></svg>
+        Exporter pour Excel
+      </button>
+    </section>
+
+    <dialog class="export-dialog" id="export-dialog" aria-labelledby="export-title">
+      <form class="export-form" id="export-form">
+        <p class="eyebrow">EXPORT EXCEL</p>
+        <h2 id="export-title">Choisir une période</h2>
+        <p class="section-caption">Le fichier inclura les utilisateurs ayant eu au moins une connexion sur cette période.</p>
+        <div class="export-date-fields">
+          <label for="export-start">Du
+            <input id="export-start" name="from" type="date" required />
+          </label>
+          <label for="export-end">Au
+            <input id="export-end" name="to" type="date" required />
+          </label>
+        </div>
+        <div class="dialog-actions">
+          <button class="dialog-cancel" id="export-cancel" type="button">Annuler</button>
+          <button class="export-button" type="submit">Télécharger Excel</button>
+        </div>
+      </form>
+    </dialog>
+
+    <p class="notice" id="notice" role="status" hidden></p>
+
+    <section class="metrics" aria-label="Indicateurs de fréquentation">
+      <article class="metric metric-users">
+        <span class="metric-label">Utilisateurs</span>
+        <strong id="metric-users">—</strong>
+        <span class="metric-caption"></span>
+      </article>
+      <article class="metric metric-visits">
+        <span class="metric-label">Visites cumulées</span>
+        <strong id="metric-visits">—</strong>
+        <span class="metric-caption">depuis l’ouverture du portail</span>
+      </article>
+      <article class="metric metric-today">
+        <span class="metric-label">Visites aujourd’hui</span>
+        <strong id="metric-today">—</strong>
+        <span class="metric-caption">connexions enregistrées ce jour</span>
+      </article>
+    </section>
+
+    <section class="activity-section" aria-labelledby="activity-title">
+      <div class="section-heading">
+        <div>
+          <h2 id="activity-title">Activité quotidienne</h2>
+          <p class="section-caption">Visites et visiteurs distincts par jour</p>
+        </div>
+        <div class="period-control" role="group" aria-label="Période affichée">
+          <button type="button" data-period="7" aria-pressed="false">7 j</button>
+          <button type="button" data-period="30" aria-pressed="true">30 j</button>
+          <button type="button" data-period="90" aria-pressed="false">90 j</button>
+        </div>
+      </div>
+      <div class="chart" id="chart" role="img" aria-label="Graphique des visites quotidiennes"></div>
+      <div class="chart-legend"><span class="legend-visits"></span> Visites <span class="legend-visitors"></span> Visiteurs distincts</div>
+      <p class="history-note">L’historique détaillé commence à la mise à jour du portail. Les fiches existantes conservent leurs totaux cumulés.</p>
+    </section>
+
+    <section class="users-section" aria-labelledby="users-title">
+      <div class="section-heading users-heading">
+        <div>
+          <h2 id="users-title">Utilisateurs</h2>
+          <p class="section-caption" id="users-count">Chargement…</p>
+        </div>
+        <form id="search-form" class="search-form" role="search">
+          <label class="visually-hidden" for="search-input">Rechercher par nom, téléphone ou email</label>
+          <input id="search-input" name="q" type="search" placeholder="Nom, téléphone, email" autocomplete="off" />
+          <button type="submit">Rechercher</button>
+        </form>
+      </div>
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">Nom</th>
+              <th scope="col">Téléphone</th>
+              <th scope="col">Email</th>
+              <th scope="col">Adresse MAC</th>
+              <th scope="col">Visites</th>
+              <th scope="col">Dernière visite</th>
+            </tr>
+          </thead>
+          <tbody id="users-body"></tbody>
+        </table>
+        <p class="empty-state" id="empty-state" hidden>Aucun utilisateur ne correspond à cette recherche.</p>
+      </div>
+      <div class="pagination">
+        <span id="page-label">Page 1</span>
+        <div>
+          <button type="button" id="previous-page" aria-label="Page précédente" disabled>←</button>
+          <button type="button" id="next-page" aria-label="Page suivante" disabled>→</button>
+        </div>
+      </div>
+    </section>
+    <p class="footer-note">Les adresses MAC sont indicatives : les appareils mobiles peuvent les renouveler.</p>
+  </main>
+  <script src="/admin/script.js" defer></script>
+</body>
+</html>

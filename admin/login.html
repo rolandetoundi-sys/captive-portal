@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Connexion | Administration CNCC</title>
+  <link rel="stylesheet" href="/admin-login.css" />
+  <link rel="stylesheet" href="/theme.css" />
+  <script src="/theme.js"></script>
+</head>
+<body>
+  <button class="theme-toggle login-theme-toggle" type="button" aria-label="Activer le thème sombre" title="Activer le thème sombre">
+    <svg class="theme-icon-sun" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42"/></svg>
+    <svg class="theme-icon-moon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.9 13A9 9 0 0 1 11 3.1 9 9 0 1 0 20.9 13Z"/></svg>
+  </button>
+  <main class="login-shell">
+    <section class="login-panel" aria-labelledby="login-title">
+      <img class="brand-logo" src="/images/cncc-logo.png" alt="Logo du CNCC" />
+      <p class="brand-name">CNCC <span>·</span> Portail Wi-Fi</p>
+      <h1 id="login-title">Espace d’administration</h1>
+      <p class="login-intro">Connectez-vous pour accéder au tableau de bord.</p>
+
+      <form id="login-form">
+        <label for="username">Nom d’utilisateur</label>
+        <input id="username" name="username" type="text" autocomplete="username" required autofocus />
+
+        <label for="password">Mot de passe</label>
+        <input id="password" name="password" type="password" autocomplete="current-password" required />
+
+        <label class="remember-option" for="remember">
+          <input id="remember" name="remember" type="checkbox" checked />
+          <span style="color:gray">Se souvenir de moi</span>
+        </label>
+
+        <p class="login-error" id="login-error" role="alert" hidden></p>
+        <button class="login-submit" type="submit">Se connecter</button>
+      </form>
+      <p class="login-footer">Accès réservé au personnel autorisé</p>
+    </section>
+  </main>
+  <script src="/admin-login.js" defer></script>
+</body>
+</html>
