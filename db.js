@@ -130,21 +130,44 @@ async function getAdminDailyStats(days = 30) {
   }));
 }
 
-async function searchAdminGuests({ query = '', limit = 50, offset = 0 } = {}) {
+async function searchAdminGuests({ query = '', lastVisit = 'all', visitCount = 'all', email = 'all', limit = 50, offset = 0 } = {}) {
   const pattern = `%${query.trim()}%`;
   const phonePattern = `%${normalizePhone(query)}%`;
+  const conditions = ['(name LIKE ? OR phone LIKE ? OR email LIKE ?)'];
+  const baseArgs = [pattern, phonePattern, pattern];
+
+  const lastVisitConditions = {
+    today: "date(last_seen_at) = date('now')",
+    yesterday: "date(last_seen_at) = date('now', '-1 day')",
+    '7-days': "last_seen_at >= datetime('now', '-7 days')",
+    '30-days': "last_seen_at >= datetime('now', '-30 days')",
+    '90-days': "last_seen_at >= datetime('now', '-90 days')",
+  };
+  const visitCountConditions = {
+    one: 'visit_count = 1',
+    '2-5': 'visit_count BETWEEN 2 AND 5',
+    '6-10': 'visit_count BETWEEN 6 AND 10',
+    more10: 'visit_count > 10',
+  };
+
+  if (lastVisitConditions[lastVisit]) conditions.push(lastVisitConditions[lastVisit]);
+  if (visitCountConditions[visitCount]) conditions.push(visitCountConditions[visitCount]);
+  if (email === 'provided') conditions.push("TRIM(email) <> ''");
+  if (email === 'missing') conditions.push("TRIM(email) = ''");
+
+  const whereClause = conditions.join(' AND ');
   const [countResult, guestsResult] = await Promise.all([
     client.execute({
-      sql: 'SELECT COUNT(*) AS total FROM guests WHERE name LIKE ? OR phone LIKE ? OR email LIKE ?',
-      args: [pattern, phonePattern, pattern],
+      sql: `SELECT COUNT(*) AS total FROM guests WHERE ${whereClause}`,
+      args: baseArgs,
     }),
     client.execute({
       sql: `SELECT name, email, phone, last_mac, visit_count, first_seen_at, last_seen_at
             FROM guests
-            WHERE name LIKE ? OR phone LIKE ? OR email LIKE ?
+            WHERE ${whereClause}
             ORDER BY last_seen_at DESC
             LIMIT ? OFFSET ?`,
-      args: [pattern, phonePattern, pattern, limit, offset],
+      args: [...baseArgs, limit, offset],
     }),
   ]);
   return { total: Number(countResult.rows[0].total), guests: guestsResult.rows };

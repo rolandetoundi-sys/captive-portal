@@ -64,7 +64,7 @@
 
     <section class="metrics" aria-label="Indicateurs de fréquentation">
       <article class="metric metric-users">
-        <span class="metric-label">Utilisateurs</span>
+        <span class="metric-label">Utilisateurs enregistrés</span>
         <strong id="metric-users">—</strong>
         <span class="metric-caption"></span>
       </article>
@@ -109,6 +109,34 @@
           <button type="submit">Rechercher</button>
         </form>
       </div>
+      <form id="filters-form" class="filters-form" aria-label="Filtres utilisateurs">
+        <label for="last-visit-filter">Dernière visite
+          <select id="last-visit-filter" name="lastVisit">
+            <option value="all">Toutes</option>
+            <option value="today">Aujourd’hui</option>
+            <option value="yesterday">Hier</option>
+            <option value="7-days">7 derniers jours</option>
+            <option value="30-days">30 derniers jours</option>
+            <option value="90-days">90 derniers jours</option>
+          </select>
+        </label>
+        <label for="visit-count-filter">Nombre de visites
+          <select id="visit-count-filter" name="visitCount">
+            <option value="all">Toutes</option>
+            <option value="one">1 visite</option>
+            <option value="2-5">2–5 visites</option>
+            <option value="6-10">6–10 visites</option>
+            <option value="more10">Plus de 10 visites</option>
+          </select>
+        </label>
+        <label for="email-filter">Email
+          <select id="email-filter" name="email">
+            <option value="all">Tous</option>
+            <option value="provided">Email renseigné</option>
+            <option value="missing">Email non renseigné</option>
+          </select>
+        </label>
+      </form>
       <div class="table-scroll">
         <table>
           <thead>

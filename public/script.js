@@ -29,7 +29,9 @@
 
   const formPhone = document.getElementById('form-phone');
   const inputPhone = document.getElementById('input-phone');
+  const inputCgu = document.getElementById('input-cgu');
   const errorPhone = document.getElementById('error-phone');
+  const errorCgu = document.getElementById('error-cgu');
   const btnPhoneSubmit = document.getElementById('btn-phone-submit');
 
   const formRegister = document.getElementById('form-register');
@@ -123,6 +125,13 @@
   formPhone.addEventListener('submit', async (e) => {
     e.preventDefault();
     setFieldError(errorPhone, null);
+    setFieldError(errorCgu, null);
+
+    if (!inputCgu.checked) {
+      setFieldError(errorCgu, 'Vous devez accepter les CGU pour continuer.');
+      inputCgu.focus();
+      return;
+    }
 
     const phone = inputPhone.value.trim();
     if (!phone) {
@@ -134,7 +143,7 @@
     btnPhoneSubmit.textContent = 'Vérification...';
 
     try {
-      const { ok, data } = await postJSON('/api/lookup', { phone });
+      const { ok, data } = await postJSON('/api/lookup', { phone, cguAccepted: inputCgu.checked });
 
       if (!ok) {
         setFieldError(errorPhone, data.error || 'Numéro invalide.');

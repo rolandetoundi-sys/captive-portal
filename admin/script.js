@@ -16,6 +16,10 @@ const exportForm = document.querySelector('#export-form');
 const exportStart = document.querySelector('#export-start');
 const exportEnd = document.querySelector('#export-end');
 const logoutButton = document.querySelector('#logout-button');
+const filtersForm = document.querySelector('#filters-form');
+const lastVisitFilter = document.querySelector('#last-visit-filter');
+const visitCountFilter = document.querySelector('#visit-count-filter');
+const emailFilter = document.querySelector('#email-filter');
 let selectedPeriod = 30;
 let currentPage = 1;
 let totalUsers = 0;
@@ -98,7 +102,13 @@ function formatDate(value, formatter) {
 
 async function loadUsers() {
   try {
-    const params = new URLSearchParams({ page: String(currentPage), q: currentQuery });
+    const params = new URLSearchParams({
+      page: String(currentPage),
+      q: currentQuery,
+      lastVisit: lastVisitFilter.value,
+      visitCount: visitCountFilter.value,
+      email: emailFilter.value,
+    });
     const data = await getJson(`/api/admin/users?${params}`);
     totalUsers = data.total;
     elements.usersBody.replaceChildren();
@@ -136,6 +146,11 @@ async function loadUsers() {
 document.querySelector('#search-form').addEventListener('submit', (event) => {
   event.preventDefault();
   currentQuery = document.querySelector('#search-input').value.trim();
+  currentPage = 1;
+  loadUsers();
+});
+
+filtersForm.addEventListener('change', () => {
   currentPage = 1;
   loadUsers();
 });

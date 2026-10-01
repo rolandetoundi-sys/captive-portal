@@ -93,6 +93,10 @@ h2 { margin: 0 0 5px; font-size: 19px; font-weight: 600; }
 .search-form input { width: 100%; min-width: 120px; height: 40px; padding: 0 12px; border: 1px solid var(--line); border-radius: 2px; background: var(--control-bg); color: var(--ink); font-size: 13px; }
 .search-form input:focus { outline: 2px solid var(--cyan); outline-offset: 1px; }
 .search-form button { min-width: 100px; border: 1px solid var(--cyan); border-radius: 2px; background: var(--cyan); color: white; cursor: pointer; font-size: 12px; font-weight: 600; }
+.filters-form { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; padding: 0 22px 18px; }
+.filters-form label { display: grid; gap: 7px; color: var(--muted); font-size: 11px; font-weight: 700; }
+.filters-form select { width: 100%; min-width: 0; height: 40px; padding: 0 10px; border: 1px solid var(--line); border-radius: 2px; background: var(--control-bg); color: var(--ink); cursor: pointer; font: inherit; font-size: 13px; }
+.filters-form select:focus { outline: 2px solid var(--cyan); outline-offset: 1px; }
 .table-scroll { overflow-x: auto; }
 table { width: 100%; border-collapse: collapse; text-align: left; white-space: nowrap; }
 thead { background: var(--soft-gray); }
@@ -129,6 +133,7 @@ td.mac-cell { color: var(--muted); font-family: Consolas, monospace; font-size: 
   .users-heading { align-items: stretch; flex-direction: column; padding: 18px 14px 14px; gap: 15px; }
   .search-form { width: 100%; }
   .search-form button { min-width: 88px; }
+  .filters-form { grid-template-columns: 1fr; padding: 0 14px 16px; }
   th { padding: 10px; }
   td { padding: 11px 10px; }
 }

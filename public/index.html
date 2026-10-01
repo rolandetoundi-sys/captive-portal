@@ -56,6 +56,11 @@
             placeholder="+237 6XX XX XX XX"
             required
           />
+          <label class="terms-option" for="input-cgu">
+            <input id="input-cgu" name="cguAccepted" type="checkbox" required />
+            <span>J’accepte les conditions générales d’utilisation (CGU).</span>
+          </label>
+          <p class="field-error" id="error-cgu" hidden></p>
           <p class="field-error" id="error-phone" hidden></p>
           <button type="submit" class="btn-primary" id="btn-phone-submit">Continuer</button>
         </form>

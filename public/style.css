@@ -194,6 +194,30 @@ input:focus-visible {
   outline-offset: 1px;
 }
 
+.terms-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  margin: 0 0 10px;
+  color: var(--fg);
+  cursor: pointer;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.terms-option input {
+  width: 17px;
+  height: 17px;
+  flex: 0 0 17px;
+  margin: 1px 0 0;
+  accent-color: #0099cc;
+}
+
+.terms-option input:focus-visible {
+  outline: 2px solid #0099cc;
+  outline-offset: 2px;
+}
+
 .field-optional {
   font-weight: 400;
   color: var(--muted);

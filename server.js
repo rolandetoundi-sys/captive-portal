@@ -128,7 +128,14 @@ app.get('/api/admin/users', async (req, res) => {
   try {
     const page = Math.max(1, Number.parseInt(req.query.page, 10) || 1);
     const query = String(req.query.q || '').trim().slice(0, 120);
-    const result = await db.searchAdminGuests({ query, limit: 50, offset: (page - 1) * 50 });
+    const result = await db.searchAdminGuests({
+      query,
+      lastVisit: String(req.query.lastVisit || 'all'),
+      visitCount: String(req.query.visitCount || 'all'),
+      email: String(req.query.email || 'all'),
+      limit: 50,
+      offset: (page - 1) * 50,
+    });
     res.json({ ...result, page, pageSize: 50 });
   } catch (err) {
     console.error('Erreur utilisateurs administrateur:', err);
@@ -164,7 +171,11 @@ app.get('/api/admin/export.xlsx', async (req, res) => {
 
 // --- 1) L'utilisateur entre son numéro : a-t-on déjà sa fiche ? ---
 app.post('/api/lookup', async (req, res) => {
-  const { phone } = req.body || {};
+  const { phone, cguAccepted } = req.body || {};
+
+  if (cguAccepted !== true) {
+    return res.status(400).json({ error: 'Vous devez accepter les CGU pour continuer.' });
+  }
 
   if (!isValidPhone(phone || '')) {
     return res.status(400).json({ error: 'Numéro de téléphone invalide.' });
